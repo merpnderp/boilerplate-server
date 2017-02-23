@@ -1,3 +1,5 @@
+// following https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence
+
 const authQuery = require('../connectionPools').authQuery;
 const tokenExpireTime = require('../config').auth.tokenExpireTime;
 const uid = require('uid-safe')
