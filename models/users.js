@@ -11,7 +11,10 @@ exports.getUserFromSession = function(token) {
 
 exports.validateUser = function(email, password) {
   return getUserByEmail(email).then(user => {
-    return bcrypt.compare(password, user.hash);
+    return bcrypt.compare(password, user.hash).then(success => {
+      var newUser = { nickname: user.nickName, email: user.email };
+      return success ? newUser : success;
+    });
   });
 };
 
@@ -19,6 +22,7 @@ exports.createNewUser = function(email, password) {
   if (!email || !password) {
     return Promise.reject(new Exception("Email and Password must be valid."));
   }
+  console.log(`creating with password:${password}:`);
   return bcrypt.hash(password, saltRounds).then(hash => {
     return authQuery("INSERT INTO users set ? ", { email, hash });
   });

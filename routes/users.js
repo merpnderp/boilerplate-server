@@ -26,8 +26,8 @@ router.post("/login", (req, res, next) => {
   }
   users
     .validateUser(req.body.email, req.body.password)
-    .then(success => {
-      res.json({ success });
+    .then(user => {
+      res.json({ user });
     })
     .catch(e => {
       console.log(e);
