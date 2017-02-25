@@ -46,3 +46,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+console.log("BOILERPLATE_PASSWORD must be defined");
+console.log("EXPRESS_SESSION must be defined");
