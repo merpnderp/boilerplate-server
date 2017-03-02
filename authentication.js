@@ -1,34 +1,30 @@
-const sessions = require("./models/sessions");
-const getUserFromSession = require("./models/users").getUserFromSession;
+const users = require("./models/users");
 const crypto = require("crypto");
 
-function randomValueHex(len) {
-  return crypto
-    .randomBytes(Math.ceil(len / 2))
-    .toString("base64")
-    .slice(0, len); // convert to hexadecimal format // return required number of characters
+function randomValueBase64(len) {
+	return crypto.randomBytes(Math.ceil(len)).toString("base64");
 }
 
-exports.setSessionToken = function(req, res, next) {};
+exports.setSessionToken = function(req, res, next) {
+	var token = randomValueBase64(16);//.slice(0, 22);
+};
 
-exports.getUserFromSession = function(req, res, next) {
-  try {
-    if (req.cookies && req.cookies.session) {
-      getUserFromSession(req.cookies.session)
-        .then(user => {
-          req.user = user;
-          next();
-        })
-        .catch(next);
-    } else {
-      next();
-    }
-  } catch (err) {
-    next(err);
-  }
+exports.getUserBySessionToken = function(req, res, next) {
+	try {
+		if (req.cookies && req.cookies.session && req.cookies.session.length > 0) {
+			users.getUserBySessionToken(req.cookies.session).then(user=>{
+				req.user = user;
+				next();
+			}).catch(next);	
+		} else {
+			next();
+		}
+	} catch (err) {
+		next(err);
+	}
 };
 
 exports.getUserFromSessionOrAuthToken = function(req, res, next) {
-  //if session, get user
-  //if auth-token, set session, get user,
+	//if session, get user
+	//if auth-token, set session, get user,
 };

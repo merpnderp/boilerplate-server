@@ -7,10 +7,10 @@ exports.authQuery = function (sql, args) {
 	return new Promise(function (res, rej) {
 		authPool.getConnection(function (err, conn) {
 			if (err) return rej(err)
-			conn.query(sql, args, function (err, results, fields) {
+			conn.query(sql, args, function (err, results) {
 				conn.release();
 				if (err) return rej(err);
-				res({ results, fields });
+				res(results);
 			})
 		})
 	})

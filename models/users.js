@@ -1,28 +1,20 @@
-var authQuery = require("../connectionPools").authQuery;
-var bcrypt = require("bcrypt");
-var saltRounds = require("../config").auth.saltRounds;
-
-exports.getUserFromSession = function(token) {
-  return authQuery(
-    "SELECT * FROM users WHERE id = (SELECT userid FROM sessions WHERE token = ?)",
-    [token]
-  );
-};
+const authQuery = require("../connectionPools").authQuery;
+const bcrypt = require("bcrypt");
+const saltRounds = require("../config").auth.saltRounds;
+const crypto = require("crypto");
 
 exports.validateUser = function(email, password) {
   return getUserByEmail(email).then(user => {
     return bcrypt.compare(password, user.hash).then(success => {
-      var newUser = { nickname: user.nickName, email: user.email };
-      return success ? newUser : success;
+      return success ? user : success;
     });
   });
 };
 
 exports.createNewUser = function(email, password) {
   if (!email || !password) {
-    return Promise.reject(new Exception("Email and Password must be valid."));
+    return Promise.reject(new Error("Email and Password must be valid."));
   }
-  console.log(`creating with password:${password}:`);
   return bcrypt.hash(password, saltRounds).then(hash => {
     return authQuery("INSERT INTO users set ? ", { email, hash });
   });
@@ -30,11 +22,62 @@ exports.createNewUser = function(email, password) {
 
 exports.getUserByEmail = getUserByEmail = function(email) {
   if (!email) {
-    return Promise.reject(new Exception("Email is required."));
+    return Promise.reject(new Error("Email is required."));
   }
   return authQuery("SELECT * FROM users WHERE email = ? ", [
     email
-  ]).then(result => {
-    return result.results.length > 0 ? result.results[0] : undefined;
+  ]).then(rows => {
+    return rows.length > 0 ? rows[0] : undefined;
+  });
+};
+
+exports.getUserBySessionToken = function(token) {
+  if (!token) {
+    return Promise.reject(new Error("sessionID must not be null"));
+  }
+  return authQuery( "SELECT * from users WHERE id = (SELECT userid FROM sessions WHERE token = ? and valid = 1 )", [token])
+    .then(rows => {
+      return rows && rows.length > 0
+        ? rows[0]
+        : undefined;
+    })
+    .catch(e => {
+      console.log(e);
+    });
+};
+
+function randomValueBase64(len) {
+  return crypto
+    .randomBytes(Math.ceil(len))
+    .toString("base64")
+    .replace(/[\+\/]/g, "0"); // replace '+' & '/' with '0'
+}
+
+exports.randomValueBase64 = randomValueBase64;
+
+exports.createSessionForUser = function(user) {
+  if (!user) {
+    return Promise.reject(new Error("user must not be null"));
+  }
+  var token = randomValueBase64(16);
+  var userid = user.id;
+  return authQuery("INSERT INTO sessions set ? ", {
+    token,
+    userid
+  }).then(() => {
+    return token;
+  });
+};
+exports.createPersistantTokenForUser = function(user) {
+  if (!user) {
+    return Promise.reject(new Error("user must not be null"));
+  }
+  var token = randomValueBase64(16);
+  var userid = user.id;
+  return authQuery("INSERT INTO sessions set ? ", {
+    token,
+    userid
+  }).then(() => {
+    return token;
   });
 };

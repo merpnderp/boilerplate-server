@@ -1,8 +1,7 @@
 var express = require("express");
 var router = express.Router();
-
 var users = require("../models/users");
-
+var getUserBySessionToken = require("../authentication").getUserBySessionToken;
 /* GET users listing. */
 
 function checkEmailPassword(body) {
@@ -19,6 +18,10 @@ router.get("/", (req, res, next) => {
   res.send("respond with a resource");
 });
 
+router.post("/getCurrentUser", getUserBySessionToken, (req, res, next) => {
+  res.json(req.user ? { user: req.user } : undefined);
+});
+
 router.post("/login", (req, res, next) => {
   var message = checkEmailPassword(req.body);
   if (message) {
@@ -27,7 +30,10 @@ router.post("/login", (req, res, next) => {
   users
     .validateUser(req.body.email, req.body.password)
     .then(user => {
-      res.json({ user });
+      users.createSessionForUser(user).then(token => {
+        res.cookie("session", token);
+        res.json({ nickname: user.nickname, email: user.email });
+      });
     })
     .catch(e => {
       console.log(e);
@@ -42,7 +48,7 @@ router.post("/signup", (req, res, next) => {
   }
   users
     .createNewUser(req.body.email, req.body.password)
-    .then(result => {
+    .then(rows => {
       res.json({ success: "true" });
     })
     .catch(e => {

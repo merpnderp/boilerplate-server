@@ -1,7 +1,7 @@
 const router = require('express').Router();
-const getUserFromSession = require('../authentication').getUserFromSession;
+const getUserBySessionToken = require('../authentication').getUserBySessionToken;
 
-router.use(getUserFromSession);
+router.use(getUserBySessionToken);
 
 router.get('/', (req, res) => {
 	res.send('hi');
