@@ -2,15 +2,12 @@ var express = require("express");
 var path = require("path");
 var favicon = require("serve-favicon");
 var logger = require("morgan");
-var session = require("express-session");
-var authorizationPool = require("./connectionPools").authorizationPool;
-var mysqlstore = require("express-mysql-session")(session);
-//var cookieParser = require("cookie-parser");
+var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var index = require("./routes/index");
 var users = require("./routes/users");
 var webapi = require("./routes/webapi");
-var randomValueBase64 = require("./models/users").randomValueBase64;
+//var randomValueBase64 = require("./models/users").randomValueBase64;
 var app = express();
 
 // view engine setup
@@ -24,35 +21,9 @@ app.use(logger("dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 
-//app.use( bodyParser.urlencoded({ extended: false }));
-//app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-var sessionStore = new mysqlstore(
-  {
-    schema: {
-      tableName: "sessions",
-      columnNames: {
-        session_id: "sessionid",
-        expires: "expires",
-        data: "session"
-      }
-    }
-  },
-  authorizationPool
-);
-
-app.use(
-  session({
-    genid: function(req) {
-      return randomValueBase64();
-    },
-		store: sessionStore,
-    secret: process.env.EXPRESS_SESSION,
-    resave: false,
-    saveUninitialized: true
-    //		, cookie: { secure: true }
-  })
-);
 app.use("/", index);
 app.use("/users", users);
 app.use("/webapi", webapi);

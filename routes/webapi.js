@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const getUserBySessionToken = require('../authentication').getUserBySessionToken;
+const getUserBySessionToken = require('../middleware/authentication').getUserBySessionToken;
 
 router.use(getUserBySessionToken);
 

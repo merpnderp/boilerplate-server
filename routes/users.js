@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var users = require("../models/users");
-var getUserBySessionToken = require("../authentication").getUserBySessionToken;
+var auth = require("../middleware/authentication");
 /* GET users listing. */
 
 function checkEmailPassword(body) {
@@ -14,13 +14,18 @@ function checkEmailPassword(body) {
   return;
 }
 
-router.get("/", (req, res, next) => {
-  res.send("respond with a resource");
+router.get("/test", (req, res, next) => {
+  res.json({ works: 1 });
 });
 
-router.post("/getCurrentUser", getUserBySessionToken, (req, res, next) => {
-  res.json(req.user ? { user: req.user } : undefined);
-});
+router.post(
+  "/getCurrentUser",
+  auth.createSessionFromPersistantToken,
+  auth.getUserBySessionToken,
+  (req, res, next) => {
+    res.json(req.user ? { user: req.user } : { nouser: true });
+  }
+);
 
 router.post("/login", (req, res, next) => {
   var message = checkEmailPassword(req.body);

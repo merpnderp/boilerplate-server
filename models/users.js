@@ -35,11 +35,12 @@ exports.getUserBySessionToken = function(token) {
   if (!token) {
     return Promise.reject(new Error("sessionID must not be null"));
   }
-  return authQuery( "SELECT * from users WHERE id = (SELECT userid FROM sessions WHERE token = ? and valid = 1 )", [token])
+  return authQuery(
+    "SELECT * from users WHERE id = (SELECT userid FROM sessions WHERE token = ? and valid = 1 )",
+    [token]
+  )
     .then(rows => {
-      return rows && rows.length > 0
-        ? rows[0]
-        : undefined;
+      return rows && rows.length > 0 ? rows[0] : undefined;
     })
     .catch(e => {
       console.log(e);
