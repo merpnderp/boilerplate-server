@@ -2,13 +2,29 @@ var express = require("express");
 var path = require("path");
 var favicon = require("serve-favicon");
 var logger = require("morgan");
-var cookieParser = require("cookie-parser");
+var session = require("express-session");
+var MySQLStore = require("express-mysql-session")(session);
 var bodyParser = require("body-parser");
 var index = require("./routes/index");
 var users = require("./routes/users");
 var webapi = require("./routes/webapi");
-//var randomValueBase64 = require("./models/users").randomValueBase64;
+var authPool = require("./connectionPools").authorizationPool;
+var passport = require("./passport");
 var app = express();
+
+var sessionStore = new MySQLStore(
+  {
+    schema: {
+      tableName: "sessions",
+      columnNames: {
+        session_id: "sessionid",
+        expires: "expires",
+        data: "data"
+      }
+    }
+  },
+  authPool
+);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -22,7 +38,24 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+
+app.use(
+  session({
+    httpOnly: true,
+    name: "sessionId",
+    resave: false,
+    sameSite: true,
+    saveUninitialized: false,
+    secret: process.env.EXPRESS_SESSION,
+    secure: false,
+    store: sessionStore
+  })
+);
+
+// Initialize Passport and restore authentication state, if any, from the
+// // session.
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/", index);
 app.use("/users", users);
@@ -48,9 +81,6 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 
-process.env.BOILERPLATE_PASSWORD
-  ? ""
-  : console.log("BOILERPLATE_PASSWORD must be defined");
-process.env.EXPRESS_SESSION
-  ? ""
-  : console.log("EXPRESS_SESSION must be defined");
+process.on("uncaughtException", err => {
+  console.log(`Caught exception: ${err}`);
+});

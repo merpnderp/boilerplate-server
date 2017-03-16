@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var users = require("../models/users");
-var auth = require("../middleware/authentication");
+var passport = require("../passport");
 /* GET users listing. */
 
 function checkEmailPassword(body) {
@@ -18,32 +18,41 @@ router.get("/test", (req, res, next) => {
   res.json({ works: 1 });
 });
 
-router.post(
-  "/getCurrentUser",
-  auth.createSessionFromPersistantToken,
-  auth.getUserBySessionToken,
-  (req, res, next) => {
-    res.json(req.user ? { user: req.user } : { nouser: true });
-  }
-);
+router.post("/getCurrentUser", (req, res, next) => {
+  res.json(
+    req.user
+      ? {
+          user: {
+            nickname: req.user.nickname,
+            email: req.user.email,
+            username: req.user.username
+          }
+        }
+      : { nouser: true }
+  );
+});
 
 router.post("/login", (req, res, next) => {
-  var message = checkEmailPassword(req.body);
-  if (message) {
-    return res.status(422).json({ error: message });
-  }
-  users
-    .validateUser(req.body.email, req.body.password)
-    .then(user => {
-      users.createSessionForUser(user).then(token => {
-        res.cookie("session", token);
-        res.json({ nickname: user.nickname, email: user.email });
+  console.log("Logging in");
+  passport.authenticate("local", function(err, user, info) {
+    if (err) {
+      return res.status(422).json({ error: message });
+    }
+    if (!user) {
+      return res.json({ error: "Failed to login" });
+    }
+    req.logIn(user, function(err) {
+      console.log("Logging in function");
+      if (err) {
+        return next(err);
+      }
+      return res.json({
+        nickname: user.nickname,
+        email: user.email,
+        username: user.username
       });
-    })
-    .catch(e => {
-      console.log(e);
-      res.status(500).send("DB Error");
     });
+  })(req, res, next);
 });
 
 router.post("/signup", (req, res, next) => {
@@ -51,6 +60,8 @@ router.post("/signup", (req, res, next) => {
   if (message) {
     return res.status(422).json({ error: message });
   }
+  console.log("creating new user");
+  console.log(req.body);
   users
     .createNewUser(req.body.email, req.body.password)
     .then(rows => {

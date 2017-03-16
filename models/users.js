@@ -3,29 +3,38 @@ const bcrypt = require("bcrypt");
 const saltRounds = require("../config").auth.saltRounds;
 const crypto = require("crypto");
 
-exports.validateUser = function(email, password) {
-  return getUserByEmail(email).then(user => {
+exports.validateUser = function(username, password) {
+  return findByUsername(username).then(user => {
     return bcrypt.compare(password, user.hash).then(success => {
       return success ? user : success;
     });
   });
 };
 
-exports.createNewUser = function(email, password) {
-  if (!email || !password) {
-    return Promise.reject(new Error("Email and Password must be valid."));
+exports.createNewUser = function(username, password) {
+  if (!username || !password) {
+    return Promise.reject(new Error("Username and Password must be valid."));
   }
   return bcrypt.hash(password, saltRounds).then(hash => {
-    return authQuery("INSERT INTO users set ? ", { email, hash });
+    return authQuery("INSERT INTO users set ? ", { username, hash });
   });
 };
 
-exports.getUserByEmail = getUserByEmail = function(email) {
-  if (!email) {
-    return Promise.reject(new Error("Email is required."));
+exports.findById = findById = function(id, cb) {
+  if (!id) {
+    return Promise.reject(new Error("ID is required."));
   }
-  return authQuery("SELECT * FROM users WHERE email = ? ", [
-    email
+  return authQuery("SELECT * FROM users WHERE id = ? ", [id]).then(rows => {
+    return rows.length > 0 ? rows[0] : undefined;
+  });
+};
+
+exports.findByUsername = findByUsername = function(username) {
+  if (!username) {
+    return Promise.reject(new Error("Username is required."));
+  }
+  return authQuery("SELECT * FROM users WHERE username = ? ", [
+    username
   ]).then(rows => {
     return rows.length > 0 ? rows[0] : undefined;
   });

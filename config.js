@@ -18,3 +18,8 @@ module.exports = {
     saltRounds: 10
   }
 };
+
+if(!process.env.BOILERPLATE_PASSWORD)
+	throw new Error("BOILERPLATE_PASSWORD must be defined");
+if(!process.env.EXPRESS_SESSION)
+  throw new Error("EXPRESS_SESSION must be defined");
