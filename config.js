@@ -1,7 +1,7 @@
 if (!process.env.BOILERPLATE_PASSWORD) {
   throw new Exception("DB Password not set in BOILERPLATE_PASSWORD env");
 }
-var password = process.env.BOILERPLATE_PASSWORD;
+const password = process.env.BOILERPLATE_PASSWORD;
 
 module.exports = {
   dbConfig: {
@@ -14,7 +14,7 @@ module.exports = {
     }
   },
   auth: {
-    tokenExpireTime: 24,
+    sessionExpireTime: 5 * 24 * 60 * 60 * 1000,
     saltRounds: 10
   }
 };

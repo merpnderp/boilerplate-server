@@ -1,7 +1,9 @@
-var express = require("express");
-var router = express.Router();
-var users = require("../models/users");
-var passport = require("../passport");
+const express = require("express");
+const router = express.Router();
+const users = require("../models/users");
+const passport = require("../passport");
+const auth = require("../middleware/authentication");
+const config = require("../config");
 /* GET users listing. */
 
 function checkEmailPassword(body) {
@@ -14,26 +16,34 @@ function checkEmailPassword(body) {
   return;
 }
 
-router.get("/test", (req, res, next) => {
+//router.get("/test", auth.csrf, (req, res, next) => {
+router.get("/test", auth.csrf, (req, res, next) => {
   res.json({ works: 1 });
 });
 
 router.post("/getCurrentUser", (req, res, next) => {
-  res.json(
-    req.user
-      ? {
-          user: {
-            nickname: req.user.nickname,
-            email: req.user.email,
-            username: req.user.username
-          }
+  try {
+    if (req.user) {
+      const CSRFToken = auth.randomValueBase64(20);
+      req.session.CSRFToken = CSRFToken;
+      req.session.cookie.maxAge = config.auth.sessionExpireTime;
+      res.json({
+        user: {
+          nickname: req.user.nickname,
+          email: req.user.email,
+          username: req.user.username,
+          csrftoken: CSRFToken
         }
-      : { nouser: true }
-  );
+      });
+    } else {
+      res.json({ nouser: true });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 router.post("/login", (req, res, next) => {
-  console.log("Logging in");
   passport.authenticate("local", function(err, user, info) {
     if (err) {
       return res.status(422).json({ error: message });
@@ -42,7 +52,6 @@ router.post("/login", (req, res, next) => {
       return res.json({ error: "Failed to login" });
     }
     req.logIn(user, function(err) {
-      console.log("Logging in function");
       if (err) {
         return next(err);
       }
@@ -56,7 +65,7 @@ router.post("/login", (req, res, next) => {
 });
 
 router.post("/signup", (req, res, next) => {
-  var message = checkEmailPassword(req.body);
+  const message = checkEmailPassword(req.body);
   if (message) {
     return res.status(422).json({ error: message });
   }

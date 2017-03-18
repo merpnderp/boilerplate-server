@@ -1,5 +1,5 @@
-var mysql = require('mysql');
-var dbConfigs = require('./config').dbConfig;
+const mysql = require('mysql');
+const dbConfigs = require('./config').dbConfig;
 
 exports.authorizationPool = authPool = mysql.createPool(dbConfigs.authorization);
 

@@ -1,8 +1,8 @@
-var passport = require("passport");
-var Strategy = require("passport-local").Strategy;
-var users = require("./models/users");
-var bcrypt = require("bcrypt");
-var saltRounds = require("./config").auth.saltRounds;
+const passport = require("passport");
+const Strategy = require("passport-local").Strategy;
+const users = require("./models/users");
+const bcrypt = require("bcrypt");
+const saltRounds = require("./config").auth.saltRounds;
 
 passport.use(
   new Strategy(function(username, password, cb) {
@@ -31,8 +31,6 @@ passport.deserializeUser(function(id, cb) {
   users
     .findById(id)
     .then(user => {
-      console.log("Found user");
-      console.log(user);
       cb(null, user);
     })
     .catch(cb);

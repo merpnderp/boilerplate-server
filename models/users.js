@@ -69,8 +69,8 @@ exports.createSessionForUser = function(user) {
   if (!user) {
     return Promise.reject(new Error("user must not be null"));
   }
-  var token = randomValueBase64(16);
-  var userid = user.id;
+  const token = randomValueBase64(16);
+  const userid = user.id;
   return authQuery("INSERT INTO sessions set ? ", {
     token,
     userid
@@ -82,8 +82,8 @@ exports.createPersistantTokenForUser = function(user) {
   if (!user) {
     return Promise.reject(new Error("user must not be null"));
   }
-  var token = randomValueBase64(16);
-  var userid = user.id;
+  const token = randomValueBase64(16);
+  const userid = user.id;
   return authQuery("INSERT INTO sessions set ? ", {
     token,
     userid

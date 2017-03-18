@@ -1,18 +1,19 @@
-var express = require("express");
-var path = require("path");
-var favicon = require("serve-favicon");
-var logger = require("morgan");
-var session = require("express-session");
-var MySQLStore = require("express-mysql-session")(session);
-var bodyParser = require("body-parser");
-var index = require("./routes/index");
-var users = require("./routes/users");
-var webapi = require("./routes/webapi");
-var authPool = require("./connectionPools").authorizationPool;
-var passport = require("./passport");
-var app = express();
+const express = require("express");
+const path = require("path");
+const favicon = require("serve-favicon");
+const logger = require("morgan");
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
+const bodyParser = require("body-parser");
+const index = require("./routes/index");
+const users = require("./routes/users");
+const webapi = require("./routes/webapi");
+const authPool = require("./connectionPools").authorizationPool;
+const passport = require("./passport");
+const config = require("./config");
+const app = express();
 
-var sessionStore = new MySQLStore(
+const sessionStore = new MySQLStore(
   {
     schema: {
       tableName: "sessions",
@@ -41,14 +42,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(
   session({
-    httpOnly: true,
     name: "sessionId",
     resave: false,
-    sameSite: true,
     saveUninitialized: false,
     secret: process.env.EXPRESS_SESSION,
-    secure: false,
-    store: sessionStore
+    store: sessionStore,
+    cookie: {
+      maxAge: config.auth.sessionExpireTime,
+      httpOnly: true,
+      sameSite: true,
+      secure: false
+    }
   })
 );
 
@@ -63,7 +67,7 @@ app.use("/webapi", webapi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error("Not Found");
+  const err = new Error("Not Found");
   err.status = 404;
   next(err);
 });

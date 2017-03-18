@@ -9,7 +9,7 @@ exports.getAuthToken = function (selector) {
 }
 
 exports.setAuthToken = function (selector, token, userid) {
-	var expires = new Date();
+	const expires = new Date();
 	expires.setHours(expires.getHours + tokenExpireTime);
 	return authQuery("INSERT INTO auth_tokens SET ?", { selector, token, userid });
 }
