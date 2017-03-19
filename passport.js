@@ -4,22 +4,50 @@ const users = require("./models/users");
 const bcrypt = require("bcrypt");
 const saltRounds = require("./config").auth.saltRounds;
 
+function handleAuth(user, password) {
+  return new Promise((resolve, reject) => {
+    if (!user) {
+      setTimeout(
+        function() {
+          reject(false);
+        },
+        Math.random() * (750 - 250) + 250
+      );
+    } else {
+      setTimeout(
+        function() {
+          bcrypt
+            .compare(password, user.hash)
+            .then(success => {
+              return success ? resolve(user) : reject(success);
+            })
+            .catch(reject);
+        },
+        user.failedattempts * 250
+      );
+    }
+  });
+}
+
 passport.use(
   new Strategy(function(username, password, cb) {
     users
-      .findByUsername(username)
+      .findByUsernameForAuth(username)
       .then(user => {
-        if (!user) {
-          return cb(null, false);
-        }
-        bcrypt
-          .compare(password, user.hash)
-          .then(success => {
-            return cb(null, success ? user : false);
-          })
-          .catch(cb);
+        return handleAuth(user, password);
       })
-      .catch(cb);
+      .then(user => {
+        if (user) {
+          users.successfulLogin(user.id);
+          cb(null, user);
+        } else {
+          users.failedLogin(user.id);
+          cb(null, false);
+        }
+      })
+      .catch(error=>{
+				cb(null, false);
+			});
   })
 );
 

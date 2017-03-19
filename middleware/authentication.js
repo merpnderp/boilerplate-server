@@ -12,9 +12,9 @@ exports.setSessionToken = function(req, res, next) {
 };
 
 exports.csrf = function(req, res, next) {
-    if (req.session.CSRFToken == req.get("X-CSRF-TOKEN")) {
-      next();
-    } else {
-      next(new Error("CSRF Token mismatch"));
-    }
+  if (req.session.CSRFToken == req.get("X-CSRF-TOKEN")) {
+    next();
+  } else {
+    next(new Error("CSRF Token mismatch"));
+  }
 };

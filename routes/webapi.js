@@ -1,5 +1,7 @@
 const router = require('express').Router();
 
+//router.disable('x-powered-by');
+
 router.get('/', (req, res) => {
 	res.send('hi');
 })

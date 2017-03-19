@@ -40,6 +40,41 @@ exports.findByUsername = findByUsername = function(username) {
   });
 };
 
+exports.findByUsernameForAuth = function(username) {
+  if (!username) {
+    return Promise.reject(new Error("Username is required."));
+  }
+  return authQuery(
+    "SELECT * FROM users as u LEFT JOIN last_auth_attempts as l on u.id = l.userid WHERE u.username = ? ",
+    [username]
+  ).then(rows => {
+    return rows.length > 0 ? rows[0] : undefined;
+  });
+};
+
+exports.failedLogin = function(id) {
+  if (!id) {
+    return Promise.reject(new Error("id is required."));
+  }
+  authQuery(
+    `INSERT INTO last_auth_attempts (userid, failedattempts) 
+	 	VALUES(?, 1) ON DUPLICATE KEY UPDATE failedattempts = failedattempts + 1`,
+    [id]
+  );
+};
+
+exports.successfulLogin = function(id) {
+  if (!id) {
+    return Promise.reject(new Error("id is required."));
+  }
+  authQuery(
+    `INSERT INTO last_auth_attempts (userid, failedattempts, lastsuccessfulattempt) 
+	 	VALUES(?, 0, now()) 
+		ON DUPLICATE KEY UPDATE failedattempts = 0, lastsuccessfulattempt = now()`,
+    [id]
+  );
+};
+
 exports.getUserBySessionToken = function(token) {
   if (!token) {
     return Promise.reject(new Error("sessionID must not be null"));
@@ -56,38 +91,3 @@ exports.getUserBySessionToken = function(token) {
     });
 };
 
-function randomValueBase64(len) {
-  return crypto
-    .randomBytes(Math.ceil(len))
-    .toString("base64")
-    .replace(/[\+\/]/g, "0"); // replace '+' & '/' with '0'
-}
-
-exports.randomValueBase64 = randomValueBase64;
-
-exports.createSessionForUser = function(user) {
-  if (!user) {
-    return Promise.reject(new Error("user must not be null"));
-  }
-  const token = randomValueBase64(16);
-  const userid = user.id;
-  return authQuery("INSERT INTO sessions set ? ", {
-    token,
-    userid
-  }).then(() => {
-    return token;
-  });
-};
-exports.createPersistantTokenForUser = function(user) {
-  if (!user) {
-    return Promise.reject(new Error("user must not be null"));
-  }
-  const token = randomValueBase64(16);
-  const userid = user.id;
-  return authQuery("INSERT INTO sessions set ? ", {
-    token,
-    userid
-  }).then(() => {
-    return token;
-  });
-};

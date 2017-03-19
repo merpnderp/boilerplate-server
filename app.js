@@ -5,6 +5,7 @@ const logger = require("morgan");
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 const bodyParser = require("body-parser");
+const httpsRedirect = require("./middleware/httpsRedirect");
 const index = require("./routes/index");
 const users = require("./routes/users");
 const webapi = require("./routes/webapi");
@@ -13,6 +14,21 @@ const passport = require("./passport");
 const config = require("./config");
 const app = express();
 
+/**
+	* Set security options
+	*/
+app.disable("x-powered-by");
+
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "DENY");
+  next();
+});
+
+app.use(httpsRedirect());
+
+/**
+	* Configure session
+	*/
 const sessionStore = new MySQLStore(
   {
     schema: {
@@ -74,6 +90,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log(err);
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = process.env.NODE_ENV == "production" ? {} : err;

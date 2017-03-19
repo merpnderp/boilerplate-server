@@ -6,6 +6,8 @@ const auth = require("../middleware/authentication");
 const config = require("../config");
 /* GET users listing. */
 
+//router.disable('x-powered-by');
+
 function checkEmailPassword(body) {
   if (!body.email) {
     return "Email required";
