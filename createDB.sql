@@ -63,7 +63,6 @@ CREATE TABLE `last_auth_attempts` (
 
 LOCK TABLES `last_auth_attempts` WRITE;
 /*!40000 ALTER TABLE `last_auth_attempts` DISABLE KEYS */;
-INSERT INTO `last_auth_attempts` VALUES (39,'2017-03-19 14:49:12','2017-03-19 14:49:12',0);
 /*!40000 ALTER TABLE `last_auth_attempts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,7 +88,6 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('_vjr_ruGSD1zzfm_ZIBkHKMP289Q3Wta','{\"cookie\":{\"originalMaxAge\":432000000,\"expires\":\"2017-03-24T14:49:17.138Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\",\"sameSite\":true},\"passport\":{\"user\":39},\"CSRFToken\":\"Rdh7k5wVG+Ne07GpdUVN7B7/AmY=\"}','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +116,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (39,NULL,'kalebmurphy@gmail.com','','$2a$10$Jrsimybo7ODT7iy6XN5w2.ucx18SPuIgRpwykLHymwb4XMCdURbtG');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
