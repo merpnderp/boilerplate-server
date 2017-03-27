@@ -75,7 +75,14 @@ exports.successfulLogin = function(id) {
   );
 };
 
-exports.getUserBySessionToken = function(token) {
+exports.deleteSessionForUser = function(id){
+  if (!id) {
+    return Promise.reject(new Error("id is required."));
+  }
+	authQuery("DELETE FROM sessions WHERE id = ?", [id]);
+}
+
+/*exports.getUserBySessionToken = function(token) {
   if (!token) {
     return Promise.reject(new Error("sessionID must not be null"));
   }
@@ -89,5 +96,5 @@ exports.getUserBySessionToken = function(token) {
     .catch(e => {
       console.log(e);
     });
-};
+};*/
 

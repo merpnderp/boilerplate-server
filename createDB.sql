@@ -33,15 +33,6 @@ CREATE TABLE `auth_tokens` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `auth_tokens`
---
-
-LOCK TABLES `auth_tokens` WRITE;
-/*!40000 ALTER TABLE `auth_tokens` DISABLE KEYS */;
-/*!40000 ALTER TABLE `auth_tokens` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `last_auth_attempts`
 --
 
@@ -58,15 +49,6 @@ CREATE TABLE `last_auth_attempts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `last_auth_attempts`
---
-
-LOCK TABLES `last_auth_attempts` WRITE;
-/*!40000 ALTER TABLE `last_auth_attempts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `last_auth_attempts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `sessions`
 --
 
@@ -81,15 +63,6 @@ CREATE TABLE `sessions` (
   PRIMARY KEY (`sessionid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sessions`
---
-
-LOCK TABLES `sessions` WRITE;
-/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -109,15 +82,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -128,4 +92,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-19 14:49:36
+-- Dump completed on 2017-03-27  3:19:06

@@ -6,8 +6,6 @@ const auth = require("../middleware/authentication");
 const config = require("../config");
 /* GET users listing. */
 
-//router.disable('x-powered-by');
-
 function checkEmailPassword(body) {
   if (!body.email) {
     return "Email required";
@@ -18,7 +16,6 @@ function checkEmailPassword(body) {
   return;
 }
 
-//router.get("/test", auth.csrf, (req, res, next) => {
 router.get("/test", auth.csrf, (req, res, next) => {
   res.json({ works: 1 });
 });
@@ -66,13 +63,16 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
+router.post("/logout", (req, res, next)=>{
+	req.session.destroy();
+	res.json({success: true});
+});
+
 router.post("/signup", (req, res, next) => {
   const message = checkEmailPassword(req.body);
   if (message) {
     return res.status(422).json({ error: message });
   }
-  console.log("creating new user");
-  console.log(req.body);
   users
     .createNewUser(req.body.email, req.body.password)
     .then(rows => {
