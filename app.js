@@ -61,7 +61,7 @@ app.use(
     name: "sessionId",
     resave: false,
     saveUninitialized: false,
-    secret: process.env.EXPRESS_SESSION,
+    secret: config.expressSession,
     store: sessionStore,
     cookie: {
       maxAge: config.auth.sessionExpireTime,

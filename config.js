@@ -1,14 +1,12 @@
 if (!process.env.BOILERPLATE_PASSWORD) {
   throw new Exception("DB Password not set in BOILERPLATE_PASSWORD env");
 }
-const password = process.env.BOILERPLATE_PASSWORD;
-
 module.exports = {
   dbConfig: {
     authorization: {
       connectionLimit: 10,
       user: "boilerplate",
-      password: password,
+      password: process.env.BOILERPLATE_PASSWORD,
       host: "127.0.0.1",
       database: "Authorization"
     }
@@ -16,7 +14,8 @@ module.exports = {
   auth: {
     sessionExpireTime: 5 * 24 * 60 * 60 * 1000,
     saltRounds: 10
-  }
+  },
+	expressSession = process.env.EXPRESS_SESSION
 };
 
 if(!process.env.BOILERPLATE_PASSWORD)
