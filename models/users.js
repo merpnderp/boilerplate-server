@@ -56,7 +56,7 @@ exports.failedLogin = function(id) {
   if (!id) {
     return Promise.reject(new Error("id is required."));
   }
-  authQuery(
+  return authQuery(
     `INSERT INTO last_auth_attempts (userid, failedattempts) 
 	 	VALUES(?, 1) ON DUPLICATE KEY UPDATE failedattempts = failedattempts + 1`,
     [id]
@@ -67,7 +67,7 @@ exports.successfulLogin = function(id) {
   if (!id) {
     return Promise.reject(new Error("id is required."));
   }
-  authQuery(
+  return authQuery(
     `INSERT INTO last_auth_attempts (userid, failedattempts, lastsuccessfulattempt) 
 	 	VALUES(?, 0, now()) 
 		ON DUPLICATE KEY UPDATE failedattempts = 0, lastsuccessfulattempt = now()`,
@@ -75,12 +75,32 @@ exports.successfulLogin = function(id) {
   );
 };
 
-exports.deleteSessionForUser = function(id){
+exports.deleteSessionForUser = function(id) {
   if (!id) {
     return Promise.reject(new Error("id is required."));
   }
-	authQuery("DELETE FROM sessions WHERE id = ?", [id]);
-}
+  authQuery("DELETE FROM sessions WHERE id = ?", [id]);
+};
+
+exports.updateUser = function(user) {
+  if (!user) {
+    return Promise.reject(new Error("user object is required."));
+  }
+  return authQuery(
+    "UPDATE users SET nickname = ?, username = ?, email = ?, hash = ?, imagetoken = ?",
+    [user.nickname, user.username, user.email, user.hash, user.imagetoken]
+  );
+};
+
+exports.updateImageToken = function(userID, token) {
+  if (!userID || !token) {
+    return Promise.reject(new Error("userID and token are required."));
+  }
+  return authQuery("UPDATE users SET imagetoken = ? WHERE id = ?", [
+    token,
+    userID
+  ]);
+};
 
 /*exports.getUserBySessionToken = function(token) {
   if (!token) {
@@ -97,4 +117,3 @@ exports.deleteSessionForUser = function(id){
       console.log(e);
     });
 };*/
-

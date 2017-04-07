@@ -4,6 +4,7 @@ const users = require("../models/users");
 const passport = require("../passport");
 const auth = require("../middleware/authentication");
 const config = require("../config");
+const uid = require("uid-safe");
 /* GET users listing. */
 
 function checkEmailPassword(body) {
@@ -20,6 +21,22 @@ router.get("/test", auth.csrf, (req, res, next) => {
   res.json({ works: 1 });
 });
 
+router.post("/userImage", (req, res, next) => {
+  try {
+    if (req.user) {
+      if (req.body.userID && req.body.image) {
+        uid(18).then(function(string) {
+          users.updateImageToken(req.user.id, string);
+          return res.json({ success: true });
+        });
+      }
+      return res.json({ success: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 router.post("/getCurrentUser", (req, res, next) => {
   try {
     if (req.user) {
@@ -31,7 +48,8 @@ router.post("/getCurrentUser", (req, res, next) => {
           nickname: req.user.nickname,
           email: req.user.email,
           username: req.user.username,
-          csrftoken: CSRFToken
+          csrftoken: CSRFToken,
+          imagetoken: req.user.imagetoken
         }
       });
     } else {
@@ -63,9 +81,9 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/logout", (req, res, next)=>{
-	req.session.destroy();
-	res.json({success: true});
+router.post("/logout", (req, res, next) => {
+  req.session.destroy();
+  res.json({ success: true });
 });
 
 router.post("/signup", (req, res, next) => {
